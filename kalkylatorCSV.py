@@ -200,7 +200,7 @@ else:
 
              # Läs in Excelfilen igen
              with open(EXCEL_FILE, "rb") as f:
-             excel_bytes = f.read()
+                excel_bytes = f.read()
 
         # Gör nedladdningsknapp
         st.download_button(
