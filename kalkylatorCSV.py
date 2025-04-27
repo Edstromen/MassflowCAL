@@ -195,8 +195,21 @@ else:
 
         # Spara till Excel först när knapp trycks
         if st.button("💾 Spara resultat till Excel"):
-            append_df_to_excel(df_res)
-            st.success(f"Resultatet från `{uploaded.name}` har sparats i `{EXCEL_FILE}`")
+             append_df_to_excel(df_res)  # Spara på servern
+             st.success(f"Resultatet från `{uploaded.name}` har sparats i `{EXCEL_FILE}` på servern")
+
+             # Läs in Excelfilen igen
+             with open(EXCEL_FILE, "rb") as f:
+             excel_bytes = f.read()
+
+    # Gör nedladdningsknapp
+    st.download_button(
+        label="⬇️ Ladda ner hela Resultat.xlsx",
+        data=excel_bytes,
+        file_name=EXCEL_FILE,
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
 
         # … dina grafer som tidigare …
         chart_col, _ = st.columns([3, 1])
