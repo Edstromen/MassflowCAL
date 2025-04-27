@@ -202,12 +202,12 @@ else:
              with open(EXCEL_FILE, "rb") as f:
              excel_bytes = f.read()
 
-    # Gör nedladdningsknapp
-    st.download_button(
-        label="⬇️ Ladda ner hela Resultat.xlsx",
-        data=excel_bytes,
-        file_name=EXCEL_FILE,
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        # Gör nedladdningsknapp
+        st.download_button(
+            label="⬇️ Ladda ner hela Resultat.xlsx",
+             data=excel_bytes,
+             file_name=EXCEL_FILE,
+             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
 
