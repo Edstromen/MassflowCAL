@@ -133,8 +133,10 @@ if mode == "Manuell inmatning":
 # ----- CSV-läge med “Spara”-knapp -----
 else:
     st.header("📂 Ladda upp CSV för automatisk beräkning")
-    uploaded = st.file_uploader("Välj CSV", type="csv", key="csvup")
-    if uploaded:
+    uploaded_files = st.file_uploader("Välj en eller flera CSV-filer", type="csv", accept_multiple_files=True, key="csvup")
+    all_results = []
+    if uploaded_files:
+    for uploaded in uploaded_files:
         df = pd.read_csv(uploaded)
         df.rename(columns={
             "GX1_Temp":    "GX1_TEMP",
@@ -220,6 +222,7 @@ else:
         res["Derivata (medel ppm/10s/m²)"] = avg_deriv
         result = pd.Series(res, name="Mean Value")
         st.dataframe(result.to_frame().T, use_container_width=True)
+        all_results.append(df_res)
 
         # Förbered DataFrame med metadata
         df_res = result.to_frame().T.reset_index(drop=True)
@@ -239,7 +242,13 @@ else:
              with open(EXCEL_FILE, "rb") as f:
                 excel_bytes = f.read()
 
-        # Gör nedladdningsknapp
+        # ----- Sammanställning av alla resultat -----
+    if all_results:
+        combined_df = pd.concat(all_results, ignore_index=True)
+        st.subheader("📋 Jämförelse mellan filer")
+        st.dataframe(combined_df, use_container_width=True)
+
+# Gör nedladdningsknapp
         if os.path.exists(EXCEL_FILE):
             with open(EXCEL_FILE, "rb") as f:
                 excel_bytes = f.read()
@@ -263,7 +272,7 @@ else:
                 alt.Chart(df_score)
                    .mark_bar(size=80)
                    .encode(
-                       x=alt.X("Kategori:N", title="", sort=["ΔCO₂", "Derivata", "Total"]),
+                       x=alt.X("Kategori:N", title=""),
                        y=alt.Y("Poäng:Q", scale=alt.Scale(domain=[0, 100])),
                        color=alt.Color("Kategori:N", legend=None)
                    )
