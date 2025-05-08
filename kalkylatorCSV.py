@@ -376,4 +376,3 @@ else:
                    .properties(width=200, height=250)
             )
             st.altair_chart(water_chart, use_container_width=False)
-
