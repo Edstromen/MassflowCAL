@@ -140,6 +140,7 @@ else:
         key="csvup"
     )
     all_results = []
+    all_tests = []
 
     if uploaded_files:
         for uploaded in uploaded_files:
@@ -231,6 +232,12 @@ else:
             df_res["SourceFile"] = uploaded.name
             all_results.append(df_res)
 
+            # Spara testperioden för jämförelse
+            if not df_test.empty:
+                df_plot = df_test.reset_index().copy()
+                df_plot["SourceFile"] = uploaded.name
+                all_tests.append(df_plot)
+
     # Sammanställning efter loopen
     if all_results:
         combined_df = pd.concat(all_results, ignore_index=True)
@@ -252,6 +259,23 @@ else:
                    .properties(width=600, height=300)
             )
             st.altair_chart(score_chart, use_container_width=False)
+
+        # Jämför GX2_CO₂ över testperioden för alla filer
+        if all_tests:
+            st.subheader("📈 Jämförelse av GX2_CO₂ över testperiod")
+            ts_df = pd.concat(all_tests, ignore_index=True)
+            ts_chart = (
+                alt.Chart(ts_df)
+                   .mark_line(point=False)
+                   .encode(
+                       x=alt.X("index:Q", title="Tidsindex (10s intervall)"),
+                       y=alt.Y("GX2_CO2:Q", title="CO₂ (ppm)"),
+                       color=alt.Color("SourceFile:N", title="Fil"),
+                       tooltip=["SourceFile", "index", "GX2_CO2"]
+                   )
+                   .properties(width=700, height=400)
+            )
+            st.altair_chart(ts_chart, use_container_width=True)
 
 # Gör nedladdningsknapp
     if os.path.exists(EXCEL_FILE):
