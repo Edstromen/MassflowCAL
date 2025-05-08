@@ -44,6 +44,12 @@ with st.sidebar:
     st.header("🎯 Poänginställningar")
     threshold_delta_co2 = st.number_input("Tröskel: Delta CO₂ per meter (ppm/m)", value=10000)
     threshold_derivata  = st.number_input("Tröskel: Derivata GX2_CO2 per m² (ppm/10s/m²)", value=500.0)
+    test_start_ppm = st.number_input("Starta test vid CO₂ > (ppm)", value=500)
+    test_stop_ppm  = st.number_input("Stoppa test vid CO₂ > (ppm)", value=1500)
+with st.sidebar:
+    st.header("🎯 Poänginställningar")
+    threshold_delta_co2 = st.number_input("Tröskel: Delta CO₂ per meter (ppm/m)", value=10000)
+    threshold_derivata  = st.number_input("Tröskel: Derivata GX2_CO2 per m² (ppm/10s/m²)", value=500.0)
 with st.sidebar:
     st.header("📐 Filterinställningar")
     rotor_diameter   = st.number_input("Rotor diameter (mm)",    min_value=1,  value=350)
@@ -168,8 +174,8 @@ else:
 
         # ----- NY: Poängberäkning inom testperiod GX2_CO2 500–1500 ppm -----
         try:
-            start_idx = df[df["GX2_CO2"] > 500].index.min()
-            end_idx = df[df["GX2_CO2"] > 1500].index.min()
+            start_idx = df[df["GX2_CO2"] > test_start_ppm].index.min()
+            end_idx = df[df["GX2_CO2"] > test_stop_ppm].index.min()
             df_test = df.loc[start_idx:end_idx].copy()
 
             df_test["Delta_CO2"] = df_test["GX1_CO2"] - df_test["GX2_CO2"]
