@@ -133,10 +133,17 @@ if mode == "Manuell inmatning":
 # ----- CSV-läge med “Spara”-knapp -----
 else:
     st.header("📂 Ladda upp CSV för automatisk beräkning")
-    uploaded_files = st.file_uploader("Välj en eller flera CSV-filer", type="csv", accept_multiple_files=True, key="csvup")
+    uploaded_files = st.file_uploader(
+        "Välj en eller flera CSV-filer", 
+        type="csv", 
+        accept_multiple_files=True, 
+        key="csvup"
+    )
     all_results = []
+
     if uploaded_files:
         for uploaded in uploaded_files:
+            # Läs in fil
             df = pd.read_csv(uploaded)
             df.rename(columns={
                 "GX1_Temp":    "GX1_TEMP",
@@ -160,7 +167,7 @@ else:
 
             df["mf_in_proc"]    = df["rho_in_proc"]  * (df["flow_in_proc"] / 1000) / area_proc_m2
             df["mf_out_proc"]   = df["mf_in_proc"]
-            df["mf_in_reg"]     = df["rho_in_reg"]   * (df["flow_in_reg"] / 1000) / area_regen_m2
+            df["mf_in_reg"]     = df["rho_in_reg"]   * (df["flow_in_reg"]  / 1000) / area_regen_m2
             df["mf_out_reg"]    = df["mf_in_reg"]
 
             df["vol_out_proc"]  = df["mf_out_proc"] * area_proc_m2 / df["rho_out_proc"] * 1000
@@ -170,82 +177,67 @@ else:
             df["ct_reg"]        = (rotor_depth / 1000) / ((df["flow_in_reg"]  / 1000) / area_regen_m2)
             df["water_added_g_h"] = (df["ah_out_reg"] - df["ah_in_reg"]) * (df["rho_in_reg"]*(df["flow_in_reg"] / 1000)) * 3600
 
-            # ----- NY: Poängberäkning inom testperiod GX2_CO2 -----
+            # Poängberäkning inom testperiod
             try:
                 start_idx = df[df["GX2_CO2"] > test_start_ppm].index.min()
                 end_idx = df[df["GX2_CO2"] > test_stop_ppm].index.min()
                 if start_idx is None or end_idx is None or start_idx >= end_idx:
-                    raise ValueError("Ogiltig testperiod: kontrollera testgränserna.")
+                    raise ValueError
                 df_test = df.loc[start_idx:end_idx].copy()
-
                 df_test["Delta_CO2"] = df_test["GX1_CO2"] - df_test["GX2_CO2"]
                 df_test["Derivata_GX2"] = df_test["GX2_CO2"].diff().abs().fillna(0)
-
                 rotor_depth_m = rotor_depth / 1000
                 df_test["Delta_CO2_norm"] = df_test["Delta_CO2"] / rotor_depth_m
                 df_test["Derivata_GX2_norm"] = df_test["Derivata_GX2"] / rotor_m2
-
                 avg_delta = df_test["Delta_CO2_norm"].mean()
                 avg_deriv = df_test["Derivata_GX2_norm"].mean()
-
                 score_delta = min(100, avg_delta / threshold_delta_co2 * 100)
                 score_deriv = min(100, avg_deriv / threshold_derivata * 100)
                 total_score = round((score_delta + score_deriv) / 2, 1)
             except:
                 df_test = pd.DataFrame()
                 score_delta = score_deriv = total_score = np.nan
+                avg_delta = avg_deriv = np.nan
 
-            # Aggrera medelvärden
+            # Aggrera medelvärden och poäng
             res = {
-                "Abs IN mf (kg/m²/s)":    df["mf_in_proc"].mean(),
-                "Reg IN mf (kg/m²/s)":    df["mf_in_reg"].mean(),
-                "Diff mf (kg/m²/s)":      df["mf_in_proc"].mean() - df["mf_in_reg"].mean(),
-                "Abs IN vol (l/s)":       df["flow_in_proc"].mean(),
-                "Abs UT vol (l/s)":       df["vol_out_proc"].mean(),
-                "Reg IN vol (l/s)":       df["flow_in_reg"].mean(),
-                "Reg UT vol (l/s)":       df["vol_out_reg"].mean(),
-                "Abs IN ah (g/kg)":       df["ah_in_proc"].mean(),
-                "Abs UT ah (g/kg)":       df["ah_out_proc"].mean(),
-                "Reg IN ah (g/kg)":       df["ah_in_reg"].mean(),
-                "Reg UT ah (g/kg)":       df["ah_out_reg"].mean(),
-                "Kontakttid Abs (s)":     df["ct_proc"].mean(),
-                "Kontakttid Reg (s)":     df["ct_reg"].mean(),
-                "Vatten tillsatt (g/h)":  df["water_added_g_h"].mean(),
-                "CO₂-upptag regen":       df["CAPACITY_REG"].mean(),
-                "CO₂-upptag abs":         df["CAPACITY_ABS"].mean(),
+                "Abs IN mf (kg/m²/s)": df["mf_in_proc"].mean(),
+                "Reg IN mf (kg/m²/s)": df["mf_in_reg"].mean(),
+                "Diff mf (kg/m²/s)": df["mf_in_proc"].mean() - df["mf_in_reg"].mean(),
+                "Abs IN vol (l/s)": df["flow_in_proc"].mean(),
+                "Abs UT vol (l/s)": df["vol_out_proc"].mean(),
+                "Reg IN vol (l/s)": df["flow_in_reg"].mean(),
+                "Reg UT vol (l/s)": df["vol_out_reg"].mean(),
+                "Abs IN ah (g/kg)": df["ah_in_proc"].mean(),
+                "Abs UT ah (g/kg)": df["ah_out_proc"].mean(),
+                "Reg IN ah (g/kg)": df["ah_in_reg"].mean(),
+                "Reg UT ah (g/kg)": df["ah_out_reg"].mean(),
+                "Kontakttid Abs (s)": df["ct_proc"].mean(),
+                "Kontakttid Reg (s)": df["ct_reg"].mean(),
+                "Vatten tillsatt (g/h)": df["water_added_g_h"].mean(),
+                "CO₂-upptag regen": df["CAPACITY_REG"].mean(),
+                "CO₂-upptag abs": df["CAPACITY_ABS"].mean(),
+                "Poäng ΔCO₂": score_delta,
+                "Poäng derivata": score_deriv,
+                "Total poäng": total_score,
+                "Testpunkter": len(df_test),
+                "ΔCO₂ (medel ppm/m)": avg_delta,
+                "Derivata (medel ppm/10s/m²)": avg_deriv
             }
-            res["Poäng ΔCO₂"] = score_delta
-            res["Poäng derivata"] = score_deriv
-            res["Total poäng"] = total_score
-            res["Testpunkter"] = len(df_test)
-            res["ΔCO₂ (medel ppm/m)"] = avg_delta
-            res["Derivata (medel ppm/10s/m²)"] = avg_deriv
             result = pd.Series(res, name="Mean Value")
             st.dataframe(result.to_frame().T, use_container_width=True)
+            # Spara respektive result
             df_res = result.to_frame().T.reset_index(drop=True)
             df_res["Mode"] = "CSV"
             df_res["SourceFile"] = uploaded.name
             all_results.append(df_res)
 
-            # Ladda ner som CSV
-        
-            csv_out = df_res.to_csv(index=False).encode("utf-8")
-            st.download_button("⬇️ Ladda ner resultat som CSV", csv_out, "resultat.csv", "text/csv")
-
-            # Spara till Excel först när knapp trycks
-            if st.button("💾 Spara resultat till Excel"):
-                append_df_to_excel(df_res)  # Spara på servern
-                st.success(f"Resultatet från `{uploaded.name}` har sparats i `{EXCEL_FILE}` på servern")
-
-                # Läs in Excelfilen igen
-                with open(EXCEL_FILE, "rb") as f:
-                    excel_bytes = f.read()
+    # Sammanställning efter loopen
     if all_results:
         combined_df = pd.concat(all_results, ignore_index=True)
         st.subheader("📋 Jämförelse mellan filer")
         st.dataframe(combined_df, use_container_width=True)
-
-        # 📊 Jämför totalpoäng mellan filer
+        # Jämför totalpoäng
         if "Total poäng" in combined_df.columns and "SourceFile" in combined_df.columns:
             st.subheader("📊 Totalpoäng per fil")
             score_compare_df = combined_df[["SourceFile", "Total poäng"]]
@@ -263,6 +255,16 @@ else:
             st.altair_chart(score_chart, use_container_width=False)
 
 # Gör nedladdningsknapp
+    if os.path.exists(EXCEL_FILE):
+        with open(EXCEL_FILE, "rb") as f:
+            excel_bytes = f.read()
+        st.download_button(
+            label="⬇️ Ladda ner hela Resultat.xlsx",
+            data=excel_bytes,
+            file_name=EXCEL_FILE,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
         if os.path.exists(EXCEL_FILE):
             with open(EXCEL_FILE, "rb") as f:
                 excel_bytes = f.read()
