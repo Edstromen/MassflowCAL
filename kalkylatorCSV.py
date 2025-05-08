@@ -224,8 +224,8 @@ else:
         st.dataframe(result.to_frame().T, use_container_width=True)
         
 
-                df_res = result.to_frame().T.reset_index(drop=True)
-        df_res["Mode"]       = "CSV"
+                        df_res = result.to_frame().T.reset_index(drop=True)
+        df_res["Mode"] = "CSV"
         df_res["SourceFile"] = uploaded.name
         all_results.append(df_res)
 
