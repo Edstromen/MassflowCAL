@@ -277,26 +277,6 @@ else:
             )
             st.altair_chart(ts_chart, use_container_width=True)
 
-# Gör nedladdningsknapp
-    if os.path.exists(EXCEL_FILE):
-        with open(EXCEL_FILE, "rb") as f:
-            excel_bytes = f.read()
-        st.download_button(
-            label="⬇️ Ladda ner hela Resultat.xlsx",
-            data=excel_bytes,
-            file_name=EXCEL_FILE,
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-
-        if os.path.exists(EXCEL_FILE):
-            with open(EXCEL_FILE, "rb") as f:
-                excel_bytes = f.read()
-            st.download_button(
-                label="⬇️ Ladda ner hela Resultat.xlsx",
-                data=excel_bytes,
-                file_name=EXCEL_FILE,
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
 
 
 
