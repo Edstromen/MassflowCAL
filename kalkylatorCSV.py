@@ -136,7 +136,7 @@ else:
     uploaded_files = st.file_uploader("Välj en eller flera CSV-filer", type="csv", accept_multiple_files=True, key="csvup")
     all_results = []
     if uploaded_files:
-    for uploaded in uploaded_files:
+        for uploaded in uploaded_files:
         df = pd.read_csv(uploaded)
         df.rename(columns={
             "GX1_Temp":    "GX1_TEMP",
