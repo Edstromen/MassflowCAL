@@ -270,6 +270,7 @@ else:
         # GX2_CO2 över tid under testperiod
         if not df_test.empty:
             st.subheader("📈 GX2_CO₂ under testperiod")
+            st.markdown(f"📏 Testperiod: {len(df_test)} datapunkter (≈{len(df_test)*10} sekunder vid 10s intervall)")
             df_test_reset = df_test.reset_index()
             gx2_chart = (
                 alt.Chart(df_test_reset)
@@ -282,6 +283,8 @@ else:
                    .properties(width=600, height=300)
             )
             st.altair_chart(gx2_chart, use_container_width=False)
+        else:
+            st.warning("⚠️ Inga datapunkter hittades inom vald testperiod. Kontrollera dina start- och stopnivåer i sidopanelen.")
 
         # … dina grafer som tidigare …
         chart_col, _ = st.columns([3, 1])
