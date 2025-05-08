@@ -216,6 +216,8 @@ else:
         res["Poäng derivata"] = score_deriv
         res["Total poäng"] = total_score
         res["Testpunkter"] = len(df_test)
+        res["ΔCO₂ (medel ppm/m)"] = avg_delta
+        res["Derivata (medel ppm/10s/m²)"] = avg_deriv
         result = pd.Series(res, name="Mean Value")
         st.dataframe(result.to_frame().T, use_container_width=True)
 
