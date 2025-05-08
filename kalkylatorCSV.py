@@ -41,22 +41,18 @@ mode = st.radio("Välj inmatningsmetod:", ("Manuell inmatning", "Ladda upp CSV")
 
 # ----- Sidebar-filter -----
 with st.sidebar:
-    st.header("🎯 Poänginställningar")
-    threshold_delta_co2 = st.number_input("Tröskel: Delta CO₂ per meter (ppm/m)", value=10000)
-    threshold_derivata  = st.number_input("Tröskel: Derivata GX2_CO2 per m² (ppm/10s/m²)", value=500.0)
-    test_start_ppm = st.number_input("Starta test vid CO₂ > (ppm)", value=500)
-    test_stop_ppm  = st.number_input("Stoppa test vid CO₂ > (ppm)", value=1500)
-with st.sidebar:
-    st.header("🎯 Poänginställningar")
-    threshold_delta_co2 = st.number_input("Tröskel: Delta CO₂ per meter (ppm/m)", value=10000)
-    threshold_derivata  = st.number_input("Tröskel: Derivata GX2_CO2 per m² (ppm/10s/m²)", value=500.0)
-with st.sidebar:
     st.header("📐 Filterinställningar")
-    rotor_diameter   = st.number_input("Rotor diameter (mm)",    min_value=1,  value=350)
-    rotor_depth      = st.number_input("Rotor depth (mm)",       min_value=1,  value=100)
-    active_pct       = st.number_input("Active area (%)",         min_value=1,  max_value=100, value=95)
-    sector_deg_proc  = st.number_input("Absorbering sector (°)",  min_value=1,  max_value=360, value=270)
-    sector_deg_regen = st.number_input("Regenerering sector (°)", min_value=1,  max_value=360, value=90)
+    rotor_diameter   = st.number_input("Rotor diameter (mm)",    min_value=1,  value=350, key="diameter")
+    rotor_depth      = st.number_input("Rotor depth (mm)",       min_value=1,  value=100, key="depth")
+    active_pct       = st.number_input("Active area (%)",         min_value=1,  max_value=100, value=95, key="active")
+    sector_deg_proc  = st.number_input("Absorbering sector (°)",  min_value=1,  max_value=360, value=270, key="proc_sector")
+    sector_deg_regen = st.number_input("Regenerering sector (°)", min_value=1,  max_value=360, value=90, key="regen_sector")
+
+    st.header("🎯 Poänginställningar")
+    threshold_delta_co2 = st.number_input("Tröskel: Delta CO₂ per meter (ppm/m)", value=10000, key="thresh_delta")
+    threshold_derivata  = st.number_input("Tröskel: Derivata GX2_CO2 per m² (ppm/10s/m²)", value=500.0, key="thresh_deriv")
+    test_start_ppm = st.number_input("Starta test vid CO₂ > (ppm)", value=500, key="start_ppm")
+    test_stop_ppm  = st.number_input("Stoppa test vid CO₂ > (ppm)", value=1500, key="stop_ppm")
 
 # ----- Beräkna areor -----
 rotor_m2      = np.pi * (rotor_diameter / 1000)**2 / 4
