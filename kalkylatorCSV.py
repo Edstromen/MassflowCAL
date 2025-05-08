@@ -172,6 +172,8 @@ else:
         try:
             start_idx = df[df["GX2_CO2"] > test_start_ppm].index.min()
             end_idx = df[df["GX2_CO2"] > test_stop_ppm].index.min()
+            if start_idx is None or end_idx is None or start_idx >= end_idx:
+                raise ValueError("Ogiltig testperiod: kontrollera testgränserna.")
             df_test = df.loc[start_idx:end_idx].copy()
 
             df_test["Delta_CO2"] = df_test["GX1_CO2"] - df_test["GX2_CO2"]
@@ -210,6 +212,10 @@ else:
             "CO₂-upptag regen":       df["CAPACITY_REG"].mean(),
             "CO₂-upptag abs":         df["CAPACITY_ABS"].mean(),
         }
+        res["Poäng ΔCO₂"] = score_delta
+        res["Poäng derivata"] = score_deriv
+        res["Total poäng"] = total_score
+        res["Testpunkter"] = len(df_test)
         result = pd.Series(res, name="Mean Value")
         st.dataframe(result.to_frame().T, use_container_width=True)
 
@@ -377,4 +383,5 @@ else:
             )
             st.altair_chart(water_chart, use_container_width=False)
 
-filf
+
+
