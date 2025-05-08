@@ -274,6 +274,6 @@ else:
                        color=alt.Color("SourceFile:N", title="Fil"),
                        tooltip=["SourceFile", "index", "GX2_CO2"]
                    )
-                   .properties(width=700, height=400)
+                   .properties(width=500, height=400)
             )
             st.altair_chart(ts_chart, use_container_width=True)
