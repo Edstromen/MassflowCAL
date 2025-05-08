@@ -268,7 +268,7 @@ else:
                 alt.Chart(ts_df)
                    .mark_line(point=False)
                    .encode(
-                       x=alt.X("index:Q", title="Tidsindex (10s intervall)"),
+                       x=alt.X("rel_index:Q", title="Tidsindex sedan teststart (10s intervall)"),
                        y=alt.Y("GX2_CO2:Q", title="CO₂ (ppm)"),
                        color=alt.Color("SourceFile:N", title="Fil"),
                        tooltip=["SourceFile", "index", "GX2_CO2"]
