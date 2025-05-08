@@ -235,7 +235,8 @@ else:
             # Spara testperioden för jämförelse
             if not df_test.empty:
                 df_plot = df_test.reset_index().copy()
-                df_plot["SourceFile"] = uploaded.name
+df_plot["rel_index"] = df_plot.index  # Fix: Lägg till relativt index
+df_plot["SourceFile"] = uploaded.name
                 all_tests.append(df_plot)
 
     # Sammanställning efter loopen
@@ -412,6 +413,3 @@ else:
                    .properties(width=200, height=250)
             )
             st.altair_chart(water_chart, use_container_width=False)
-
-
-
