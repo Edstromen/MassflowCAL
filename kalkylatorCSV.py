@@ -41,6 +41,10 @@ mode = st.radio("Välj inmatningsmetod:", ("Manuell inmatning", "Ladda upp CSV")
 
 # ----- Sidebar-filter -----
 with st.sidebar:
+    st.header("🎯 Poänginställningar")
+    threshold_delta_co2 = st.number_input("Tröskel: Delta CO₂ per meter (ppm/m)", value=10000)
+    threshold_derivata  = st.number_input("Tröskel: Derivata GX2_CO2 per m² (ppm/10s/m²)", value=500.0)
+with st.sidebar:
     st.header("📐 Filterinställningar")
     rotor_diameter   = st.number_input("Rotor diameter (mm)",    min_value=1,  value=350)
     rotor_depth      = st.number_input("Rotor depth (mm)",       min_value=1,  value=100)
@@ -162,6 +166,29 @@ else:
         df["ct_reg"]        = (rotor_depth / 1000) / ((df["flow_in_reg"]  / 1000) / area_regen_m2)
         df["water_added_g_h"]= (df["ah_out_reg"] - df["ah_in_reg"]) * (df["rho_in_reg"]*(df["flow_in_reg"] / 1000)) * 3600
 
+        # ----- NY: Poängberäkning inom testperiod GX2_CO2 500–1500 ppm -----
+        try:
+            start_idx = df[df["GX2_CO2"] > 500].index.min()
+            end_idx = df[df["GX2_CO2"] > 1500].index.min()
+            df_test = df.loc[start_idx:end_idx].copy()
+
+            df_test["Delta_CO2"] = df_test["GX1_CO2"] - df_test["GX2_CO2"]
+            df_test["Derivata_GX2"] = df_test["GX2_CO2"].diff().abs().fillna(0)
+
+            rotor_depth_m = rotor_depth / 1000
+            df_test["Delta_CO2_norm"] = df_test["Delta_CO2"] / rotor_depth_m
+            df_test["Derivata_GX2_norm"] = df_test["Derivata_GX2"] / rotor_m2
+
+            avg_delta = df_test["Delta_CO2_norm"].mean()
+            avg_deriv = df_test["Derivata_GX2_norm"].mean()
+
+            score_delta = min(100, avg_delta / threshold_delta_co2 * 100)
+            score_deriv = min(100, avg_deriv / threshold_derivata * 100)
+            total_score = round((score_delta + score_deriv) / 2, 1)
+        except:
+            df_test = pd.DataFrame()
+            score_delta = score_deriv = total_score = np.nan
+
         # Aggrera medelvärden
         res = {
             "Abs IN mf (kg/m²/s)":    df["mf_in_proc"].mean(),
@@ -214,6 +241,41 @@ else:
     )
 
 
+
+        # Poängdiagram
+        if not np.isnan(total_score):
+            st.subheader("🏆 Poängsättning")
+            df_score = pd.DataFrame({
+                "Kategori": ["ΔCO₂", "Derivata", "Total"],
+                "Poäng": [score_delta, score_deriv, total_score]
+            })
+            score_chart = (
+                alt.Chart(df_score)
+                   .mark_bar(size=80)
+                   .encode(
+                       x=alt.X("Kategori:N", title=""),
+                       y=alt.Y("Poäng:Q", scale=alt.Scale(domain=[0, 100])),
+                       color=alt.Color("Kategori:N", legend=None)
+                   )
+                   .properties(width=400, height=300)
+            )
+            st.altair_chart(score_chart, use_container_width=False)
+
+        # GX2_CO2 över tid under testperiod
+        if not df_test.empty:
+            st.subheader("📈 GX2_CO₂ under testperiod")
+            df_test_reset = df_test.reset_index()
+            gx2_chart = (
+                alt.Chart(df_test_reset)
+                   .mark_line(point=True)
+                   .encode(
+                       x=alt.X("index", title="Tidsindex (10s intervall)"),
+                       y=alt.Y("GX2_CO2", title="CO₂ (ppm)"),
+                       tooltip=["index", "GX2_CO2"]
+                   )
+                   .properties(width=600, height=300)
+            )
+            st.altair_chart(gx2_chart, use_container_width=False)
 
         # … dina grafer som tidigare …
         chart_col, _ = st.columns([3, 1])
@@ -309,3 +371,4 @@ else:
                    .properties(width=200, height=250)
             )
             st.altair_chart(water_chart, use_container_width=False)
+
