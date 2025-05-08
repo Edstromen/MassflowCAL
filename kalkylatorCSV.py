@@ -263,7 +263,7 @@ else:
                 alt.Chart(df_score)
                    .mark_bar(size=80)
                    .encode(
-                       x=alt.X("Kategori:N", title="", sort=["ΔCO₂", "Derivata", "Total"])
+                       x=alt.X("Kategori:N", title="", sort=["ΔCO₂", "Derivata", "Total"]),
                        y=alt.Y("Poäng:Q", scale=alt.Scale(domain=[0, 100])),
                        color=alt.Color("Kategori:N", legend=None)
                    )
