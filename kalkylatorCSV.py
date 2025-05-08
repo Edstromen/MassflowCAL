@@ -51,7 +51,7 @@ with st.sidebar:
     st.header("🎯 Poänginställningar")
     threshold_delta_co2 = st.number_input("Tröskel: Delta CO₂ per meter (ppm/m)", value=10000, key="thresh_delta")
     threshold_derivata  = st.number_input("Tröskel: Derivata GX2_CO2 per m² (ppm/10s/m²)", value=500.0, key="thresh_deriv")
-    test_start_ppm = st.number_input("Starta test vid CO₂ > (ppm)", value=500, key="start_ppm")
+    test_start_ppm = st.number_input("Starta test vid CO₂ > (ppm)", value=600, key="start_ppm")
     test_stop_ppm  = st.number_input("Stoppa test vid CO₂ > (ppm)", value=1500, key="stop_ppm")
 
 # ----- Beräkna areor -----
