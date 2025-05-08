@@ -248,6 +248,23 @@ else:
         st.subheader("📋 Jämförelse mellan filer")
         st.dataframe(combined_df, use_container_width=True)
 
+        # 📊 Jämför totalpoäng mellan filer
+        if "Total poäng" in combined_df.columns and "SourceFile" in combined_df.columns:
+            st.subheader("📊 Totalpoäng per fil")
+            score_compare_df = combined_df[["SourceFile", "Total poäng"]]
+            score_chart = (
+                alt.Chart(score_compare_df)
+                   .mark_bar(size=60)
+                   .encode(
+                       x=alt.X("SourceFile:N", title="Filnamn"),
+                       y=alt.Y("Total poäng:Q", scale=alt.Scale(domain=[0, 100])),
+                       tooltip=["SourceFile", "Total poäng"],
+                       color=alt.Color("SourceFile:N", legend=None)
+                   )
+                   .properties(width=600, height=300)
+            )
+            st.altair_chart(score_chart, use_container_width=False)
+
 # Gör nedladdningsknapp
         if os.path.exists(EXCEL_FILE):
             with open(EXCEL_FILE, "rb") as f:
