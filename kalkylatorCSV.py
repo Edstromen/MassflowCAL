@@ -137,7 +137,7 @@ else:
     all_results = []
     if uploaded_files:
         for uploaded in uploaded_files:
-        df = pd.read_csv(uploaded)
+            df = pd.read_csv(uploaded)
         df.rename(columns={
             "GX1_Temp":    "GX1_TEMP",
             "capacity_reg":"CAPACITY_REG",
