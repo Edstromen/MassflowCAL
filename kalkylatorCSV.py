@@ -65,7 +65,6 @@ area_regen_m2 = rotor_m2 * (active_pct / 100) * (sector_deg_regen / 360)
 # ----- Hjälpfunktioner -----
 from io import BytesIO
 from fpdf import FPDF
-from PIL import Image
 import tempfile
 def calc_density(T):
     return 1.293 * 273.15 / (273.15 + T)
@@ -336,11 +335,11 @@ if 'combined_df' in locals():
         pdf_output = BytesIO()
         pdf.output(pdf_output)
         st.download_button(
-            label="📄 Ladda ner PDF",
-            data=pdf_output.getvalue(),
-            file_name="CO2_Resultat.pdf",
-            mime="application/pdf"
-        ), file_name="CO2_Resultat.pdf", mime="application/pdf")
+    label="📄 Ladda ner PDF",
+    data=pdf_output.getvalue(),
+    file_name="CO2_Resultat.pdf",
+    mime="application/pdf"
+)
     chart_col, _ = st.columns([3, 1])
     with chart_col:
         # Massflöde ABS vs REG (kg/m²/s) för alla filer
