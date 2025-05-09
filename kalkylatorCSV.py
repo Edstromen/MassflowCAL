@@ -63,6 +63,11 @@ area_proc_m2  = rotor_m2 * (active_pct / 100) * (sector_deg_proc / 360)
 area_regen_m2 = rotor_m2 * (active_pct / 100) * (sector_deg_regen / 360)
 
 # ----- Hjälpfunktioner -----
+from io import BytesIO
+from fpdf import FPDF
+from PIL import Image
+import matplotlib.pyplot as plt
+import tempfile
 def calc_density(T):
     return 1.293 * 273.15 / (273.15 + T)
 
@@ -243,6 +248,7 @@ else:
                 all_tests.append(df_plot)
 
     # Sammanställning efter loopen
+        export_buffer = BytesIO()
     if all_results:
         combined_df = pd.concat(all_results, ignore_index=True)
         st.subheader("📋 Jämförelse mellan filer")
@@ -302,6 +308,35 @@ else:
         # … efter st.download_button …
 # Här lägger vi graferna i en smal kolumn (≈75% bredd)
 if 'combined_df' in locals():
+    st.subheader("📥 Export")
+    if st.button("Ladda ner resultat som PDF"):
+        pdf = FPDF()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 10, txt="CO₂ Massflödes Resultat", ln=True, align="C")
+
+        # Tabell i PDF
+        for col in combined_df.columns:
+            pdf.cell(40, 10, col, border=1)
+        pdf.ln()
+        for i, row in combined_df.iterrows():
+            for col in combined_df.columns:
+                value = str(round(row[col], 2)) if isinstance(row[col], (int, float)) else str(row[col])
+                pdf.cell(40, 10, value, border=1)
+            pdf.ln()
+
+        # Tillfälligt spara figurer som bilder och inkludera
+        with tempfile.TemporaryDirectory() as tmpdir:
+            for chart, name in [(mf_chart, "massflode"), (vol_chart, "volym"), (ah_chart, "fukt"), (water_chart, "vatten")]:
+                img_path = os.path.join(tmpdir, f"{name}.png")
+                chart.save(img_path)
+                pdf.add_page()
+                pdf.image(img_path, x=10, w=190)
+
+        pdf_output = BytesIO()
+        pdf.output(pdf_output)
+        st.download_button("📄 Ladda ner PDF", data=pdf_output.getvalue(), file_name="CO2_Resultat.pdf", mime="application/pdf")
     chart_col, _ = st.columns([3, 1])
     with chart_col:
         # Massflöde ABS vs REG (kg/m²/s) för alla filer
