@@ -339,9 +339,9 @@ else:
             st.warning("⚠️ Inga datapunkter hittades inom vald testperiod. Kontrollera dina start- och stopnivåer i sidopanelen.")
 
         # … efter st.download_button …
-        # Här lägger vi graferna i en smal kolumn (≈75% bredd)
-        chart_col, _ = st.columns([3, 1])
-        with chart_col:
+      # Här lägger vi graferna i en smal kolumn (≈75% bredd)
+chart_col, _ = st.columns([3, 1])
+with chart_col:
     # Massflöde ABS vs REG (kg/m²/s) för alla filer
     st.subheader("📦 Massflöde ABS vs REG (kg/m²/s)")
     mf_df = combined_df[["SourceFile", "Abs IN mf (kg/m²/s)", "Reg IN mf (kg/m²/s)", "Diff mf (kg/m²/s)"]].melt(id_vars="SourceFile", var_name="Kategori", value_name="Värde")
@@ -403,6 +403,7 @@ else:
             ).properties(width=500, height=250)
     )
     st.altair_chart(water_chart, use_container_width=False)
+
 
 
 
