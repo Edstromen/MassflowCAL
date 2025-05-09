@@ -66,7 +66,6 @@ area_regen_m2 = rotor_m2 * (active_pct / 100) * (sector_deg_regen / 360)
 from io import BytesIO
 from fpdf import FPDF
 from PIL import Image
-import matplotlib.pyplot as plt
 import tempfile
 def calc_density(T):
     return 1.293 * 273.15 / (273.15 + T)
