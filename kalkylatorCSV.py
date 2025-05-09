@@ -1,4 +1,3 @@
-
 # ----- Lägg in hela din ursprungliga kod här nedan -----
 # (OBS! Klistra in HELA din ursprungliga kod på 414 rader manuellt här!)
 import os
@@ -281,20 +280,21 @@ else:
             )
             st.altair_chart(ts_chart, use_container_width=True)
 
-        # Graf för Delta CO₂ (GX1_CO₂ - GX2_CO₂)
-        st.subheader("📉 Delta CO₂ (GX1 - GX2) under testperiod")
-        ts_df["Delta_CO2"] = ts_df["GX1_CO2"] - ts_df["GX2_CO2"]
-        delta_chart = (
-            alt.Chart(ts_df)
-                .mark_line(point=False, color='orange')
-                .encode(
-                    x=alt.X("rel_index", title="Tidsindex sedan teststart (10s intervall)"),
-                    y=alt.Y("Delta_CO2", title="Delta CO₂ (ppm)"),
-                    tooltip=["SourceFile", "rel_index", "Delta_CO2"]
-                )
-                .properties(width=700, height=400)
+        # Graf för Delta CO₂ (GX1_CO₂ - GX2_CO₂) med separata filer
+st.subheader("📉 Delta CO₂ (GX1 - GX2) under testperiod")
+ts_df["Delta_CO2"] = ts_df["GX1_CO2"] - ts_df["GX2_CO2"]
+delta_chart = (
+    alt.Chart(ts_df)
+        .mark_line(point=False)
+        .encode(
+            x=alt.X("rel_index:Q", title="Tidsindex sedan teststart (10s intervall)"),
+            y=alt.Y("Delta_CO2:Q", title="Delta CO₂ (ppm)"),
+            color=alt.Color("SourceFile:N", title="Fil"),
+            tooltip=["SourceFile", "rel_index", "Delta_CO2"]
         )
-        st.altair_chart(delta_chart, use_container_width=True)
+        .properties(width=700, height=400)
+)
+st.altair_chart(delta_chart, use_container_width=True)
 
 
 
@@ -431,6 +431,3 @@ else:
                    .properties(width=200, height=250)
             )
             st.altair_chart(water_chart, use_container_width=False)
-
-
-
