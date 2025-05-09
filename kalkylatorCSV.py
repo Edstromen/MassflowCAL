@@ -281,21 +281,21 @@ else:
             )
             st.altair_chart(ts_chart, use_container_width=True)
 
-                # Graf för Delta CO₂ (GX1_CO₂ - GX2_CO₂) med separata filer
-st.subheader("📉 Delta CO₂ (GX1 - GX2) under testperiod")
-ts_df["Delta_CO2"] = ts_df["GX1_CO2"] - ts_df["GX2_CO2"]
-delta_chart = (
-    alt.Chart(ts_df)
-        .mark_line(point=False)
-        .encode(
-            x=alt.X("rel_index:Q", title="Tidsindex sedan teststart (10s intervall)"),
-            y=alt.Y("Delta_CO2:Q", title="Delta CO₂ (ppm)"),
-            color=alt.Color("SourceFile:N", title="Fil"),
-            tooltip=["SourceFile", "rel_index", "Delta_CO2"]
+                        # Graf för Delta CO₂ (GX1_CO₂ - GX2_CO₂) med separata filer
+        st.subheader("📉 Delta CO₂ (GX1 - GX2) under testperiod")
+        ts_df["Delta_CO2"] = ts_df["GX1_CO2"] - ts_df["GX2_CO2"]
+        delta_chart = (
+            alt.Chart(ts_df)
+                .mark_line(point=False)
+                .encode(
+                    x=alt.X("rel_index:Q", title="Tidsindex sedan teststart (10s intervall)"),
+                    y=alt.Y("Delta_CO2:Q", title="Delta CO₂ (ppm)"),
+                    color=alt.Color("SourceFile:N", title="Fil"),
+                    tooltip=["SourceFile", "rel_index", "Delta_CO2"]
+                )
+                .properties(width=700, height=400)
         )
-        .properties(width=700, height=400)
-)
-st.altair_chart(delta_chart, use_container_width=True)
+        st.altair_chart(delta_chart, use_container_width=True)
 
 
 
@@ -341,3 +341,97 @@ st.altair_chart(delta_chart, use_container_width=True)
         # … dina grafer som tidigare …
         chart_col, _ = st.columns([3, 1])
         with chart_col:
+            # (oförändrade grafer) …
+            pass
+# … efter st.download_button …
+        # Här lägger vi graferna i en smal kolumn (≈75% bredd)
+        chart_col, _ = st.columns([3, 1])
+        with chart_col:
+
+            # Massflöde ABS vs REG (kg/m²/s)
+            st.subheader("📦 Massflöde ABS vs REG (kg/m²/s)")
+            abs_mf  = res["Abs IN mf (kg/m²/s)"]
+            reg_mf  = res["Reg IN mf (kg/m²/s)"]
+            diff_mf = res["Diff mf (kg/m²/s)"]
+            mf_df = pd.DataFrame({
+                "Kategori": ["ABS", "REG", "DIFF"],
+                "Värde":    [abs_mf, reg_mf, diff_mf]
+            })
+            mf_chart = (
+                alt.Chart(mf_df)
+                   .mark_bar(size=80)
+                   .encode(
+                       x=alt.X("Kategori:N", scale=alt.Scale(paddingInner=0.2)),
+                       y=alt.Y("Värde:Q", title="kg/m²/s"),
+                       color="Kategori:N"
+                   )
+                   .properties(width=500, height=250)
+            )
+            st.altair_chart(mf_chart, use_container_width=False)
+
+            # Volymflöden
+            st.subheader("🌬️ Volymflöden (l/s)")
+            cats = ["Abs IN","Abs UT","Reg IN","Reg UT"]
+            df_v = pd.DataFrame({
+                "Kategori": cats,
+                "Värde": [
+                    res["Abs IN vol (l/s)"],
+                    res["Abs UT vol (l/s)"],
+                    res["Reg IN vol (l/s)"],
+                    res["Reg UT vol (l/s)"],
+                ]
+            })
+            vol_chart = (
+                alt.Chart(df_v)
+                   .mark_bar(size=80)
+                   .encode(
+                       x="Kategori:N",
+                       y="Värde:Q",
+                       color="Kategori:N"
+                   )
+                   .properties(width=600, height=250)
+            )
+            st.altair_chart(vol_chart, use_container_width=False)
+
+            # Absolut fukt
+            st.subheader("💧 Absolut fukt (g/kg)")
+            df_h = pd.DataFrame({
+                "Kategori": cats,
+                "Värde": [
+                    res["Abs IN ah (g/kg)"],
+                    res["Abs UT ah (g/kg)"],
+                    res["Reg IN ah (g/kg)"],
+                    res["Reg UT ah (g/kg)"],
+                ]
+            })
+            hum_chart = (
+                alt.Chart(df_h)
+                   .mark_bar(size=80)
+                   .encode(
+                       x="Kategori:N",
+                       y="Värde:Q",
+                       color="Kategori:N"
+                   )
+                   .properties(width=600, height=250)
+            )
+            st.altair_chart(hum_chart, use_container_width=False)
+
+            # Vatten tillsatt
+            st.subheader("💦 Tillsatt vatten (g/h)")
+            df_w = pd.DataFrame({
+                "Kategori": ["Vatten tillsatt"],
+                "Värde":    [res["Vatten tillsatt (g/h)"]],
+            })
+            water_chart = (
+                alt.Chart(df_w)
+                   .mark_bar(size=60, color="#1f77b4")
+                   .encode(
+                       x="Kategori:N",
+                       y="Värde:Q"
+                   )
+                   .properties(width=200, height=250)
+            )
+            st.altair_chart(water_chart, use_container_width=False)
+
+
+
