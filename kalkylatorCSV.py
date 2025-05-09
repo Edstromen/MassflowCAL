@@ -316,12 +316,14 @@ if 'combined_df' in locals():
 
         # Tabell i PDF
         for col in combined_df.columns:
-            pdf.cell(40, 10, col, border=1)
+            col_clean = col.replace("Δ", "Delta").replace("₂", "2").replace("ä", "a").replace("ö", "o").replace("å", "a")
+            pdf.cell(40, 10, col_clean, border=1)
         pdf.ln()
         for i, row in combined_df.iterrows():
             for col in combined_df.columns:
                 value = str(round(row[col], 2)) if isinstance(row[col], (int, float)) else str(row[col])
-                pdf.cell(40, 10, value, border=1)
+                value_clean = value.replace("Δ", "Delta").replace("₂", "2").replace("ä", "a").replace("ö", "o").replace("å", "a")
+                pdf.cell(40, 10, value_clean, border=1)
             pdf.ln()
 
         # Tillfälligt spara figurer som bilder och inkludera
