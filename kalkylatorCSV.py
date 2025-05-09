@@ -40,7 +40,7 @@ st.markdown("""
 st.markdown('<div class="big-title">CO₂ Massflödes Kalkylator v2.10</div>', unsafe_allow_html=True)
 
 # ----- Inmatningsläge -----
-mode = st.radio("Välj inmatningsmetod:", ("Manuell inmatning", "Ladda upp CSV"))
+mode = st.radio("Välj inmatningsmetod:", ("Manuell inmatning", "Analysera CSV"))
 
 # ----- Sidebar-filter -----
 with st.sidebar:
