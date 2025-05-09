@@ -342,21 +342,16 @@ if 'combined_df' in locals():
                     chart.save(img_path)
                     pdf.add_page()
                     pdf.image(img_path, x=10, w=190)
-                img_path = os.path.join(tmpdir, f"{name}.png")
-                chart.save(img_path)
-                pdf.add_page()
-                pdf.image(img_path, x=10, w=190)
 
-        pdf_output = BytesIO()
-        pdf.output(pdf_output)
+        pdf_bytes = pdf.output(dest='S').encode('latin1')
         st.download_button(
     label="📄 Ladda ner PDF",
-    data=pdf_output.getvalue(),
+    data=pdf_bytes,
     file_name="CO2_Resultat.pdf",
     mime="application/pdf"
 )
-    chart_col, _ = st.columns([3, 1])
-    with chart_col:
+chart_col, _ = st.columns([3, 1])
+with chart_col:
         # Massflöde ABS vs REG (kg/m²/s) för alla filer
         st.subheader("📦 Massflöde ABS vs REG (kg/m²/s)")
         mf_df = combined_df[["SourceFile", "Abs IN mf (kg/m²/s)", "Reg IN mf (kg/m²/s)", "Diff mf (kg/m²/s)"]].melt(id_vars="SourceFile", var_name="Kategori", value_name="Värde")
