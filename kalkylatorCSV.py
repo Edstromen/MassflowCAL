@@ -326,7 +326,20 @@ if 'combined_df' in locals():
 
         # Tillfälligt spara figurer som bilder och inkludera
         with tempfile.TemporaryDirectory() as tmpdir:
-            for chart, name in [(mf_chart, "massflode"), (vol_chart, "volym"), (ah_chart, "fukt"), (water_chart, "vatten")]:
+            if 'mf_chart' in locals() and 'vol_chart' in locals() and 'ah_chart' in locals() and 'water_chart' in locals():
+                chart_list = [
+                    (mf_chart, "massflode"),
+                    (vol_chart, "volym"),
+                    (ah_chart, "fukt"),
+                    (water_chart, "vatten"),
+                    (ts_chart, "gx2_co2"),
+                    (delta_chart, "delta_co2")
+                ]
+                for chart, name in chart_list:
+                    img_path = os.path.join(tmpdir, f"{name}.png")
+                    chart.save(img_path)
+                    pdf.add_page()
+                    pdf.image(img_path, x=10, w=190)
                 img_path = os.path.join(tmpdir, f"{name}.png")
                 chart.save(img_path)
                 pdf.add_page()
