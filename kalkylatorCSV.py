@@ -338,12 +338,7 @@ else:
         else:
             st.warning("⚠️ Inga datapunkter hittades inom vald testperiod. Kontrollera dina start- och stopnivåer i sidopanelen.")
 
-        # … dina grafer som tidigare …
-        chart_col, _ = st.columns([3, 1])
-        with chart_col:
-            # (oförändrade grafer) …
-            pass
-# … efter st.download_button …
+        # … efter st.download_button …
         # Här lägger vi graferna i en smal kolumn (≈75% bredd)
         chart_col, _ = st.columns([3, 1])
         with chart_col:
