@@ -348,66 +348,66 @@ else:
         chart_col, _ = st.columns([3, 1])
         with chart_col:
     # Massflöde ABS vs REG (kg/m²/s) för alla filer
-st.subheader("📦 Massflöde ABS vs REG (kg/m²/s)")
-mf_df = combined_df[["SourceFile", "Abs IN mf (kg/m²/s)", "Reg IN mf (kg/m²/s)", "Diff mf (kg/m²/s)"]].melt(id_vars="SourceFile", var_name="Kategori", value_name="Värde")
-mf_chart = (
-    alt.Chart(mf_df)
-        .mark_bar()
-        .encode(
-            x=alt.X("SourceFile:N", title="File"),
-            y=alt.Y("Värde:Q", title="kg/m²/s"),
-            color="Kategori:N",
-            column="Kategori:N",
-            tooltip=["SourceFile", "Kategori", "Värde"]
-        ).properties(width=200, height=250)
-)
-st.altair_chart(mf_chart, use_container_width=False)
+    st.subheader("📦 Massflöde ABS vs REG (kg/m²/s)")
+    mf_df = combined_df[["SourceFile", "Abs IN mf (kg/m²/s)", "Reg IN mf (kg/m²/s)", "Diff mf (kg/m²/s)"]].melt(id_vars="SourceFile", var_name="Kategori", value_name="Värde")
+    mf_chart = (
+        alt.Chart(mf_df)
+            .mark_bar()
+            .encode(
+                x=alt.X("SourceFile:N", title="File"),
+                y=alt.Y("Värde:Q", title="kg/m²/s"),
+                color="Kategori:N",
+                column="Kategori:N",
+                tooltip=["SourceFile", "Kategori", "Värde"]
+            ).properties(width=200, height=250)
+    )
+    st.altair_chart(mf_chart, use_container_width=False)
 
-# Volymflöden för alla filer
-st.subheader("🌬️ Volymflöden (l/s)")
-vol_df = combined_df[["SourceFile", "Abs IN vol (l/s)", "Abs UT vol (l/s)", "Reg IN vol (l/s)", "Reg UT vol (l/s)"]].melt(id_vars="SourceFile", var_name="Kategori", value_name="Värde")
-vol_chart = (
-    alt.Chart(vol_df)
-        .mark_bar()
-        .encode(
-            x="SourceFile:N",
-            y="Värde:Q",
-            color="Kategori:N",
-            column="Kategori:N",
-            tooltip=["SourceFile", "Kategori", "Värde"]
-        ).properties(width=150, height=250)
-)
-st.altair_chart(vol_chart, use_container_width=False)
+    # Volymflöden för alla filer
+    st.subheader("🌬️ Volymflöden (l/s)")
+    vol_df = combined_df[["SourceFile", "Abs IN vol (l/s)", "Abs UT vol (l/s)", "Reg IN vol (l/s)", "Reg UT vol (l/s)"]].melt(id_vars="SourceFile", var_name="Kategori", value_name="Värde")
+    vol_chart = (
+        alt.Chart(vol_df)
+            .mark_bar()
+            .encode(
+                x="SourceFile:N",
+                y="Värde:Q",
+                color="Kategori:N",
+                column="Kategori:N",
+                tooltip=["SourceFile", "Kategori", "Värde"]
+            ).properties(width=150, height=250)
+    )
+    st.altair_chart(vol_chart, use_container_width=False)
 
-# Absolut fukt för alla filer
-st.subheader("💧 Absolut fukt (g/kg)")
-ah_df = combined_df[["SourceFile", "Abs IN ah (g/kg)", "Abs UT ah (g/kg)", "Reg IN ah (g/kg)", "Reg UT ah (g/kg)"]].melt(id_vars="SourceFile", var_name="Kategori", value_name="Värde")
-ah_chart = (
-    alt.Chart(ah_df)
-        .mark_bar()
-        .encode(
-            x="SourceFile:N",
-            y="Värde:Q",
-            color="Kategori:N",
-            column="Kategori:N",
-            tooltip=["SourceFile", "Kategori", "Värde"]
-        ).properties(width=150, height=250)
-)
-st.altair_chart(ah_chart, use_container_width=False)
+    # Absolut fukt för alla filer
+    st.subheader("💧 Absolut fukt (g/kg)")
+    ah_df = combined_df[["SourceFile", "Abs IN ah (g/kg)", "Abs UT ah (g/kg)", "Reg IN ah (g/kg)", "Reg UT ah (g/kg)"]].melt(id_vars="SourceFile", var_name="Kategori", value_name="Värde")
+    ah_chart = (
+        alt.Chart(ah_df)
+            .mark_bar()
+            .encode(
+                x="SourceFile:N",
+                y="Värde:Q",
+                color="Kategori:N",
+                column="Kategori:N",
+                tooltip=["SourceFile", "Kategori", "Värde"]
+            ).properties(width=150, height=250)
+    )
+    st.altair_chart(ah_chart, use_container_width=False)
 
-# Vatten tillsatt för alla filer
-st.subheader("💦 Tillsatt vatten (g/h)")
-water_df = combined_df[["SourceFile", "Vatten tillsatt (g/h)"]].rename(columns={"Vatten tillsatt (g/h)":"Värde"})
-water_chart = (
-    alt.Chart(water_df)
-        .mark_bar(size=60, color="#1f77b4")
-        .encode(
-            x="SourceFile:N",
-            y="Värde:Q",
-            tooltip=["SourceFile", "Värde"]
-        ).properties(width=500, height=250)
-)
-st.altair_chart(water_chart, use_container_width=False)
+    # Vatten tillsatt för alla filer
+    st.subheader("💦 Tillsatt vatten (g/h)")
+    water_df = combined_df[["SourceFile", "Vatten tillsatt (g/h)"]].rename(columns={"Vatten tillsatt (g/h)":"Värde"})
+    water_chart = (
+        alt.Chart(water_df)
+            .mark_bar(size=60, color="#1f77b4")
+            .encode(
+                x="SourceFile:N",
+                y="Värde:Q",
+                tooltip=["SourceFile", "Värde"]
+            ).properties(width=500, height=250)
+    )
+    st.altair_chart(water_chart, use_container_width=False)
 
 
 
