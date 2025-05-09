@@ -286,7 +286,7 @@ else:
         ts_df["Delta_CO2"] = ts_df["GX1_CO2"] - ts_df["GX2_CO2"]
         delta_chart = (
             alt.Chart(ts_df)
-                .mark_line(point=True, color='orange')
+                .mark_line(point=False, color='orange')
                 .encode(
                     x=alt.X("rel_index", title="Tidsindex sedan teststart (10s intervall)"),
                     y=alt.Y("Delta_CO2", title="Delta CO₂ (ppm)"),
