@@ -301,8 +301,9 @@ else:
 
         # … efter st.download_button …
       # Här lägger vi graferna i en smal kolumn (≈75% bredd)
-chart_col, _ = st.columns([3, 1])
-with chart_col:
+if 'combined_df' in locals():
+    chart_col, _ = st.columns([3, 1])
+    with chart_col:
     # Massflöde ABS vs REG (kg/m²/s) för alla filer
     st.subheader("📦 Massflöde ABS vs REG (kg/m²/s)")
     mf_df = combined_df[["SourceFile", "Abs IN mf (kg/m²/s)", "Reg IN mf (kg/m²/s)", "Diff mf (kg/m²/s)"]].melt(id_vars="SourceFile", var_name="Kategori", value_name="Värde")
