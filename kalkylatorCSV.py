@@ -135,7 +135,7 @@ if mode == "Manuell inmatning":
 
 # ----- CSV-läge med “Spara”-knapp -----
 else:
-    st.header("📂 Ladda upp CSV för automatisk beräkning")
+    st.header("📂 Ladda upp CSV för automatisk analys")
     uploaded_files = st.file_uploader(
         "Välj en eller flera CSV-filer", 
         type="csv", 
