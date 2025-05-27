@@ -26,7 +26,7 @@ def append_df_to_excel(df, filename=EXCEL_FILE, sheet_name=SHEET_NAME):
         wb.save(filename)
 
 # ----- Layout & Styling -----
-st.set_page_config(page_title="CO₂ Massflödes Kalkylator v2.10", layout="wide")
+st.set_page_config(page_title="CO₂ Mass Flow Calculator v2.10", layout="wide")
 st.markdown("""
     <style>
     .block-container { padding:2rem 3rem; }
@@ -34,30 +34,30 @@ st.markdown("""
     .stHeader, .stSubheader { margin-top:2rem; }
     </style>
 """, unsafe_allow_html=True)
-st.markdown('<div class="big-title">CO₂ Massflödes Kalkylator v2.10</div>', unsafe_allow_html=True)
+st.markdown('<div class="big-title">CO₂ Mass Flow Calculator v2.10</div>', unsafe_allow_html=True)
 
-# ----- Inmatningsläge -----
-mode = st.radio("Välj inmatningsmetod:", ("Manuell inmatning", "Ladda upp CSV"))
+# ----- Input Mode -----
+mode = st.radio("Select input method:", ("Manual input", "Upload CSV"))
 
 # ----- Sidebar-filter -----
 with st.sidebar:
-    st.header("📐 Filterinställningar")
+    st.header("📐 Filter Settings")
     rotor_diameter   = st.number_input("Rotor diameter (mm)",    min_value=1,  value=350, key="diameter")
     rotor_depth      = st.number_input("Rotor depth (mm)",       min_value=1,  value=100, key="depth")
     active_pct       = st.number_input("Active area (%)",         min_value=1,  max_value=100, value=95, key="active")
-    sector_deg_proc  = st.number_input("Absorbering sector (°)",  min_value=1,  max_value=360, value=270, key="proc_sector")
-    sector_deg_regen = st.number_input("Regenerering sector (°)", min_value=1,  max_value=360, value=90, key="regen_sector")
+    sector_deg_proc  = st.number_input("Absorption sector (°)",  min_value=1,  max_value=360, value=270, key="proc_sector")
+    sector_deg_regen = st.number_input("Regeneration sector (°)", min_value=1,  max_value=360, value=90, key="regen_sector")
 
-    st.header("🎯 Poänginställningar")
-    threshold_delta_co2 = st.number_input("Tröskel: Delta CO₂ per meter (ppm/m)", value=10000, key="thresh_delta")
-    threshold_derivata  = st.number_input("Tröskel: Derivata GX2_CO2 per m² (ppm/10s/m²)", value=500.0, key="thresh_deriv")
-    test_start_ppm = st.number_input("Starta test vid CO₂ > (ppm)", value=600, key="start_ppm")
-    test_stop_ppm  = st.number_input("Stoppa test vid CO₂ > (ppm)", value=1500, key="stop_ppm")
+    st.header("🎯 Scoring Settings")
+    threshold_delta_co2 = st.number_input("Threshold: Delta CO₂ per meter (ppm/m)", value=10000, key="thresh_delta")
+    threshold_derivata  = st.number_input("Threshold: Derivative GX2_CO2 per m² (ppm/10s/m²)", value=500.0, key="thresh_deriv")
+    test_start_ppm = st.number_input("Start test at CO₂ > (ppm)", value=600, key="start_ppm")
+    test_stop_ppm  = st.number_input("Stop test at CO₂ > (ppm)", value=1500, key="stop_ppm")
 
-    st.header("🏠 Rumsvolym")
-    room_volume_m3   = st.number_input("Rumsvolym för test (m³)", value=10.5, min_value=0.1, key="room_vol")
-    interval_s       = st.number_input("Mätintervall (s)", value=60, min_value=1, key="interval_s")
-    ppm_to_mg_per_m3 = st.number_input("mg/m³ per ppm (t.ex. 1.96 vid 25°C)", value=1.96, key="ppm2mg")
+    st.header("🏠 Room Volume")
+    room_volume_m3   = st.number_input("Room volume for test (m³)", value=10.5, min_value=0.1, key="room_vol")
+    interval_s       = st.number_input("Measurement interval (s)", value=60, min_value=1, key="interval_s")
+    ppm_to_mg_per_m3 = st.number_input("mg/m³ per ppm (e.g. 1.96 at 25°C)", value=1.96, key="ppm2mg")
 
 # ----- Beräkna areor -----
 rotor_m2      = np.pi * (rotor_diameter / 1000)**2 / 4
@@ -75,25 +75,25 @@ def calc_abs_humidity(T, RH):
     return w * 1000  # g vatten/kg torr luft
 
 # ----- Manuellt läge (ingen sparfunktion) -----
-if mode == "Manuell inmatning":
-    st.header("⚙️ Manuella parametrar")
+if mode == "Manual input":
+    st.header("⚙️ Manual Parameters")
     c1, c2 = st.columns(2)
     with c1:
-        st.subheader("Absorbering IN/UT")
-        flow_in_proc  = st.number_input("Flöde IN (l/s)", 0.0, 500.0, 73.0, key="m_flow_in_proc")
+        st.subheader("Absorption IN/OUT")
+        flow_in_proc  = st.number_input("Flow IN (l/s)", 0.0, 500.0, 73.0, key="m_flow_in_proc")
         T_in_proc     = st.number_input("Temp IN (°C)", -20.0, 200.0, 20.0, key="m_T_in_proc")
         RH_in_proc    = st.number_input("RH IN (%)",    0.0, 100.0, 30.0, key="m_RH_in_proc")
-        T_out_proc    = st.number_input("Temp UT (°C)", -20.0, 200.0, 25.0, key="m_T_out_proc")
-        RH_out_proc   = st.number_input("RH UT (%)",    0.0, 100.0, 20.0, key="m_RH_out_proc")
+        T_out_proc    = st.number_input("Temp OUT (°C)", -20.0, 200.0, 25.0, key="m_T_out_proc")
+        RH_out_proc   = st.number_input("RH OUT (%)",    0.0, 100.0, 20.0, key="m_RH_out_proc")
     with c2:
-        st.subheader("Regenerering IN/UT")
-        flow_in_reg   = st.number_input("Flöde IN (l/s)", 0.0, 500.0, 30.0, key="m_flow_in_reg")
+        st.subheader("Regeneration IN/OUT")
+        flow_in_reg   = st.number_input("Flow IN (l/s)", 0.0, 500.0, 30.0, key="m_flow_in_reg")
         T_in_reg      = st.number_input("Temp IN (°C)", -20.0, 200.0, 23.0, key="m_T_in_reg")
         RH_in_reg     = st.number_input("RH IN (%)",    0.0, 100.0, 60.0, key="m_RH_in_reg")
-        T_out_reg     = st.number_input("Temp UT (°C)", -20.0, 200.0, 40.0, key="m_T_out_reg")
-        RH_out_reg    = st.number_input("RH UT (%)",    0.0, 100.0, 50.0, key="m_RH_out_reg")
+        T_out_reg     = st.number_input("Temp OUT (°C)", -20.0, 200.0, 40.0, key="m_T_out_reg")
+        RH_out_reg    = st.number_input("RH OUT (%)",    0.0, 100.0, 50.0, key="m_RH_out_reg")
 
-    # Beräkningar
+    # Calculations
     rho_in_proc   = calc_density(T_in_proc)
     rho_out_proc  = calc_density(T_out_proc)
     rho_in_reg    = calc_density(T_in_reg)
@@ -115,30 +115,30 @@ if mode == "Manuell inmatning":
     ct_proc       = (rotor_depth / 1000) / ((flow_in_proc / 1000) / area_proc_m2)
     ct_reg        = (rotor_depth / 1000) / ((flow_in_reg  / 1000) / area_regen_m2)
 
-    with st.expander("📊 Resultat (Manuellt)", expanded=True):
-        st.markdown("### Absorbering")
-        st.write(f"• Massflöde IN:    {mf_in_proc:.3f} kg/m²/s")
-        st.write(f"• Massflöde UT:    {mf_out_proc:.3f} kg/m²/s")
-        st.write(f"• Fukt IN:         {ah_in_proc:.1f} g/kg")
-        st.write(f"• Fukt UT:         {ah_out_proc:.1f} g/kg")
-        st.write(f"• Volymflöde IN:   {flow_in_proc:.1f} l/s")
-        st.write(f"• Volymflöde UT:   {vol_out_proc:.1f} l/s")
-        st.write(f"• Kontakttid:      {ct_proc:.2f} s")
+    with st.expander("📊 Results (Manual)", expanded=True):
+        st.markdown("### Absorption")
+        st.write(f"• Mass flow IN:    {mf_in_proc:.3f} kg/m²/s")
+        st.write(f"• Mass flow OUT:   {mf_out_proc:.3f} kg/m²/s")
+        st.write(f"• Humidity IN:     {ah_in_proc:.1f} g/kg")
+        st.write(f"• Humidity OUT:    {ah_out_proc:.1f} g/kg")
+        st.write(f"• Volumetric flow IN:   {flow_in_proc:.1f} l/s")
+        st.write(f"• Volumetric flow OUT:  {vol_out_proc:.1f} l/s")
+        st.write(f"• Contact time:    {ct_proc:.2f} s")
 
-        st.markdown("### Regenerering")
-        st.write(f"• Massflöde IN:    {mf_in_reg:.3f} kg/m²/s")
-        st.write(f"• Massflöde UT:    {mf_out_reg:.3f} kg/m²/s")
-        st.write(f"• Fukt IN:         {ah_in_reg:.1f} g/kg")
-        st.write(f"• Fukt UT:         {ah_out_reg:.1f} g/kg")
-        st.write(f"• Volymflöde IN:   {flow_in_reg:.1f} l/s")
-        st.write(f"• Volymflöde UT:   {vol_out_reg:.1f} l/s")
-        st.write(f"• Kontakttid:      {ct_reg:.2f} s")
+        st.markdown("### Regeneration")
+        st.write(f"• Mass flow IN:    {mf_in_reg:.3f} kg/m²/s")
+        st.write(f"• Mass flow OUT:   {mf_out_reg:.3f} kg/m²/s")
+        st.write(f"• Humidity IN:     {ah_in_reg:.1f} g/kg")
+        st.write(f"• Humidity OUT:    {ah_out_reg:.1f} g/kg")
+        st.write(f"• Volumetric flow IN:   {flow_in_reg:.1f} l/s")
+        st.write(f"• Volumetric flow OUT:  {vol_out_reg:.1f} l/s")
+        st.write(f"• Contact time:    {ct_reg:.2f} s")
 
 # ----- CSV-läge med “Spara”-knapp -----
 else:
-    st.header("📂 Ladda upp CSV för automatisk beräkning")
+    st.header("📂 Upload CSV for automatic calculation")
     uploaded_files = st.file_uploader(
-        "Välj en eller flera CSV-filer",
+        "Select one or more CSV files",
         type="csv",
         accept_multiple_files=True,
         key="csvup"
@@ -236,6 +236,15 @@ else:
                 "Derivata (medel ppm/10s/m²)": avg_deriv,
                 "CO₂-kapacitet (kg/24h)": regen_capacity_kg_24h,
             }
+            # --- Calculate mean derivative in ppm per 30min ---
+            if not df_test.empty and len(df_test) > 1:
+                # Mean derivative per second
+                mean_deriv_per_sec = df_test["Derivata_GX2"].mean() / interval_s
+                deriv_ppm_per_30min = mean_deriv_per_sec * 1800  # 30min = 1800s
+            else:
+                deriv_ppm_per_30min = np.nan
+            res["Derivata (ppm/30min)"] = deriv_ppm_per_30min
+
             df_res = pd.Series(res, name="Mean Value").to_frame().T.reset_index(drop=True)
             df_res["Mode"]       = "CSV"
             df_res["SourceFile"] = uploaded.name
@@ -251,58 +260,67 @@ else:
     # Sammanställning efter loopen
     if all_results:
         combined_df = pd.concat(all_results, ignore_index=True)
-        st.subheader("📋 Jämförelse mellan filer")
+        st.subheader("📋 File Comparison")
         st.dataframe(combined_df, use_container_width=True)
 
-        # Totalpoäng per fil
-        if "Total poäng" in combined_df and "SourceFile" in combined_df:
-            st.subheader("📊 Totalpoäng per fil")
-            score_compare_df = combined_df[["SourceFile", "Total poäng"]]
-            score_chart = (
-                alt.Chart(score_compare_df)
-                   .mark_bar(size=60)
-                   .encode(
-                       x=alt.X("SourceFile:N", title="Filnamn"),
-                       y=alt.Y("Total poäng:Q", scale=alt.Scale(domain=[0, 100])),
-                       tooltip=["SourceFile", "Total poäng"],
-                       color=alt.Color("SourceFile:N", legend=None)
-                   )
-                   .properties(width=600, height=300)
-            )
-            st.altair_chart(score_chart, use_container_width=False)
+       
 
-        # GX2_CO₂ över testperioden
+        # GX2_CO₂ over the test period
         if all_tests:
-            st.subheader("📈 Jämförelse av GX2_CO₂ över testperiod")
+            st.subheader("📈 GX2_CO₂ Comparison Over Test Period")
             ts_df = pd.concat(all_tests, ignore_index=True)
             ts_chart = (
                 alt.Chart(ts_df)
                    .mark_line(point=False)
                    .encode(
-                       x=alt.X("rel_index:Q", title=f"Tidsindex sedan teststart ({interval_s}s intervall)"),
+                       x=alt.X("rel_index:Q", title=f"Time index since test start ({interval_s}s interval)"),
                        y=alt.Y("GX2_CO2:Q", title="CO₂ (ppm)"),
-                       color=alt.Color("SourceFile:N", title="Fil"),
+                       color=alt.Color("SourceFile:N", title="File"),
                        tooltip=["SourceFile", "index", "GX2_CO2"]
                    )
                    .properties(width=700, height=400)
             )
             st.altair_chart(ts_chart, use_container_width=True)
 
-        # CO₂-kapacitet stapeldiagram
-        st.subheader("🧲 CO₂-kapacitet (kg/24h) per fil")
-        if "CO₂-kapacitet (kg/24h)" in combined_df.columns:
-            cap_df = combined_df[["SourceFile", "CO₂-kapacitet (kg/24h)"]]
-            cap_chart = (
-                alt.Chart(cap_df)
-                   .mark_bar()
-                   .encode(
-                       x="SourceFile:N",
-                       y="CO₂-kapacitet (kg/24h):Q",
-                       color="SourceFile:N",
-                       tooltip=["SourceFile", "CO₂-kapacitet (kg/24h)"]
-                   )
-                   .properties(width=300, height=300)
-            )
-            st.altair_chart(cap_chart, use_container_width=False)
-        else:
-            st.warning("Ingen data för CO₂-kapacitet att visa.")
+            # --- Standardized Bar Charts: All after the main graph ---
+
+
+            # 2. CO₂ capacity bar chart
+            st.subheader("🧲 CO₂ Capacity (kg/24h) per File")
+            if "CO₂-kapacitet (kg/24h)" in combined_df.columns:
+                cap_df = combined_df[["SourceFile", "CO₂-kapacitet (kg/24h)"]]
+                cap_chart = (
+                    alt.Chart(cap_df)
+                       .mark_bar(size=60)
+                       .encode(
+                           x=alt.X("SourceFile:N", title="Filename"),
+                           y=alt.Y("CO₂-kapacitet (kg/24h):Q", title="CO₂ Capacity (kg/24h)"),
+                           tooltip=["SourceFile", "CO₂-kapacitet (kg/24h)"],
+                           color=alt.Color("SourceFile:N", legend=None)
+                       )
+                       .properties(width=600, height=300)
+                )
+                st.altair_chart(cap_chart, use_container_width=False)
+            else:
+                st.warning("No CO₂ capacity data to display.")
+
+            # 3. Derivative (ppm/30min) bar chart
+            st.subheader("📈 Derivative (ppm/30min) per File")
+            if "Derivata (ppm/30min)" in combined_df.columns:
+                deriv30_df = combined_df[["SourceFile", "Derivata (ppm/30min)"]]
+                deriv30_chart = (
+                    alt.Chart(deriv30_df)
+                       .mark_bar(size=60)
+                       .encode(
+                           x=alt.X("SourceFile:N", title="Filename"),
+                           y=alt.Y("Derivata (ppm/30min):Q", title="Derivative (ppm/30min)"),
+                           tooltip=["SourceFile", "Derivata (ppm/30min)"],
+                           color=alt.Color("SourceFile:N", legend=None)
+                       )
+                       .properties(width=600, height=300)
+                )
+                st.altair_chart(deriv30_chart, use_container_width=False)
+            else:
+                st.warning("No derivative (ppm/30min) data to display.")
+
+        # (Duplicated CO₂-kapacitet stapeldiagram removed)
